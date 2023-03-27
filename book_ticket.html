@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Book Ticket</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1 class="mb-4">Book Ticket</h1>
+      <form action="/book_ticket" method="post">
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="date">Date:</label>
+          <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="time">Time:</label>
+          <input type="time" class="form-control" id="time" name="time" required>
+        </div>
+
+        <div class="form-group">
+          <label for="num_tickets">Number of Tickets:</label>
+          <input type="number" class="form-control" id="num_tickets" name="num_tickets" min="1" max="10" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Book Ticket</button>
+      </form>
+    </div>
+  </body>
+</html>
