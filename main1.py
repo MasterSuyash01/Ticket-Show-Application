@@ -24,7 +24,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         if username == 'admin' and password == 'password':
-            return redirect('/dashboard?username='+username)
+            return redirect('Admin_dashboard.html')
         else:
             return render_template('admin_login.html', message='Invalid username or password.')
     else:
@@ -124,12 +124,45 @@ def book_ticket():
     return render_template('book_ticket.html')
 
 
+#--------------------to Fix -----------------------------------------------
+# Venue Adding 
 
 
+class venue(db.Model):
+    __tablename__ = 'venue'
+    Movie = db.Column(db.String(80), primary_key=True, nullable=False)
+    Venue = db.Column(db.String(80), nullable=False)
+    Location = db.Column(db.String(120), nullable=False)
+    City = db.Column(db.String(80), nullable=False)
+    Capacity = db.Column(db.String(80), nullable=False)
+@app.route('/Admin_dashboard.html')
+def Admin_dashboard():
+    return render_template('Admin_dashboard.html')
 
+@app.route('/Add', methods=['POST'])
+def Add():
+    Movie = request.form['Movie']
+    Venue = request.form['Venue']
+    Location = request.form['Location']
+    City = request.form['City']
+    Capacity = request.form['Capacity']
+    
+    Venue = venue(Movie=Movie, Venue=Venue, Location=Location, City=City, Capacity=Capacity)
+    db.session.add(Venue)
+    db.session.commit()
+    
+    return 'New venue Added successfully'
+#--------------------to Fix -----------------------------------------------
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+
+
+
 
 
 
