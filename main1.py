@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 import random
-
+from werkzeug.security import check_password_hash
+from flask import request
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/suyashsrivastav/Desktop/Ticket-Show-Application/booking.db'
@@ -13,22 +14,30 @@ def landingpage():
     return render_template('Landingpage.html')
 
 # ---------- User Login Page ------------
-@app.route('/user_login.html')
+@app.route('/user_login')
 def user_login():
     return render_template('user_login.html')
 
+# ---------- User Dashboard Page ------------
+
+"""@app.route('/user_dashboard')
+def user_dashboard():
+    return render_template("user_dashboard.html")"""
+
+
 # ---------- Admin Login Page ------------
-@app.route('/admin_login.html', methods=['GET', 'POST'])
+@app.route('/admin_login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         if username == 'admin' and password == 'password':
-            return redirect('Admin_dashboard.html')
+            return redirect('Admin_dashboard')
         else:
-            return render_template('admin_login.html', message='Invalid username or password.')
+            message = 'Invalid username or password.'
+            return render_template('admin_login.html', message=message)
     else:
-        return render_template('admin_login.html')  
+        return render_template('admin_login.html')
 
 
 class User(db.Model):
@@ -39,9 +48,8 @@ class User(db.Model):
     Password = db.Column(db.String(80), nullable=False)
     Confirm_Password = db.Column(db.String(80), nullable=False)
 
-#----------------------to fix-----------------------------------------------------------#
-# New_user page is not working.....
-@app.route('/New_user.html')
+#user page
+@app.route('/New_user')
 def New_user():
     return render_template('New_user.html')
 
@@ -58,28 +66,27 @@ def register():
     db.session.commit()
     
     return 'User created successfully'
-#----------------------to fix-----------------------------------------------------------#
 
 
 
 # ---------- Contact Page ------------
-@app.route('/contact.html')
+@app.route('/contact')
 def contact():
     return render_template('contact.html')
 
 
 # ---------- Events Page ------------
-@app.route('/Events.html')
+@app.route('/events')
 def Events():
     return render_template('Events.html')
 
 
 # ---------- Home Page ------------
-@app.route('/Landingpage.html')
+"""@app.route('/')
 def Home():
     return render_template('Landingpage.html')    
 
-
+"""
 # ----------- Ticket Booking -----------
 
 class Ticket(db.Model):
@@ -103,7 +110,7 @@ class Ticket(db.Model):
         booking_number = ''.join(random.choice(chars) for i in range(6))
         return booking_number
 
-@app.route('/index.html')
+@app.route('/index')
 def index():
     return render_template('index.html')
 
@@ -124,18 +131,17 @@ def book_ticket():
     return render_template('book_ticket.html')
 
 
-#--------------------to Fix -----------------------------------------------
 # Venue Adding 
 
 
-class venue(db.Model):
-    __tablename__ = 'venue'
-    Movie = db.Column(db.String(80), primary_key=True, nullable=False)
-    Venue = db.Column(db.String(80), nullable=False)
-    Location = db.Column(db.String(120), nullable=False)
-    City = db.Column(db.String(80), nullable=False)
-    Capacity = db.Column(db.String(80), nullable=False)
-@app.route('/Admin_dashboard.html')
+class Venue(db.Model):
+    Movie = db.Column(db.String(50), unique=True,primary_key=True)
+    Venue = db.Column(db.String(50))
+    Location = db.Column(db.String(50))
+    City = db.Column(db.String(50))
+    Capacity = db.Column(db.String(50))
+
+@app.route('/Admin_dashboard',methods=['GET','POST'])
 def Admin_dashboard():
     return render_template('Admin_dashboard.html')
 
@@ -152,17 +158,50 @@ def Add():
     db.session.commit()
     
     return 'New venue Added successfully'
-#--------------------to Fix -----------------------------------------------
+
+
+#-----------------Movies---------------------------------------
+
+class Movies(db.Model):
+    __tablename__ = 'Movies'
+    Show_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    Moviename = db.Column(db.String(80), nullable=False)
+    Rating = db.Column(db.String(120), nullable=False)
+    Ticket_cost = db.Column(db.Integer, nullable=False)
+
+@app.route('/movies')
+def movies():
+    movies = Movies.query.all()
+    return render_template('movies.html', Movies=movies)
+
+
+@app.route('/user_dashboard')
+def user_dashboard():
+    # get the search query from the URL parameter 'q'
+    query = request.args.get('q')
+
+    # if there is a search query, filter the venues by the query
+    if query:
+        venues = Venue.query.filter(Venue.Movie.contains(query) | Venue.Venue.contains(query) | Venue.Location.contains(query) | Venue.City.contains(query)).all()
+    else:
+        venues = Venue.query.all()
+
+    return render_template('user_dashboard.html', venues=venues)
+
+@app.route('/search')
+def search():
+    query = request.args.get('query')
+    if query:
+        movies = Movies.query.filter(Movies.Moviename.contains(query)).all()
+    else:
+        movies = Movies.query.all()
+    return render_template('movies.html', Movies=movies)
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
-
-
 
 
 
