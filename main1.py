@@ -80,12 +80,7 @@ def Events():
     return render_template('Events.html')
 
 
-# ---------- Home Page ------------
-"""@app.route('/')
-def Home():
-    return render_template('Landingpage.html')    
 
-"""
 # ----------- Ticket Booking -----------
 
 class Ticket(db.Model):
@@ -121,6 +116,10 @@ def book_ticket():
         time = request.form['time']
         num_tickets = request.form['num_tickets']
 
+        # Calculate ticket price and total price based on num_tickets
+        ticket_price = 150 # Replace with your actual ticket price calculation
+        total_price = num_tickets * ticket_price
+
         ticket = Ticket(name=name, date=date, time=time, num_tickets=num_tickets)
         db.session.add(ticket)
         db.session.commit()
@@ -137,23 +136,6 @@ class Venue(db.Model):
     City = db.Column(db.String(50))
     Capacity = db.Column(db.String(50))
 
-@app.route('/Admin_dashboard', methods=['GET', 'POST'])
-def Admin_dashboard():
-    return render_template('Admin_dashboard.html')
-
-@app.route('/Add', methods=['POST'])
-def Add():
-    Movie = request.form['Movie']
-    Venue = request.form['Venue']
-    Location = request.form['Location']
-    City = request.form['City']
-    Capacity = request.form['Capacity']
-    
-    venue = Venue(Movie=Movie, Venue=Venue, Location=Location, City=City, Capacity=Capacity)
-    db.session.add(venue)
-    db.session.commit()
-    
-    return 'New venue added successfully'
 
 
 class Movies(db.Model):
@@ -191,8 +173,43 @@ def search():
         movies = Movies.query.all()
     return render_template('movies.html', Movies=movies)
 
+
+
+@app.route('/Admin_dashboard')
+def Admin_dashboard():
+    # get the search query from the URL parameter 'q'
+    query = request.args.get('q')
+
+    # if there is a search query, filter the venues by the query
+    if query:
+        venues = Venue.query.filter(
+            Venue.movie.ilike(f'%{query}%') |
+            Venue.venue.ilike(f'%{query}%') |
+            Venue.location.ilike(f'%{query}%') |
+            Venue.city.ilike(f'%{query}%')
+        ).all()
+    else:
+        venues = Venue.query.all()
+
+    return render_template('Admin_dashboard.html', venues=venues)
+
+
+@app.route('/add_venue', methods=['GET', 'POST'])
+def add_venue():
+    if request.method == 'POST':
+        movie = request.form['Movie']
+        venue = request.form['Venue']
+        location = request.form['Location']
+        city = request.form['City']
+        capacity = request.form['Capacity']
+        new_venue = Venue(Movie=movie, Venue=venue, Location=location, City=city, Capacity=capacity)
+        db.session.add(new_venue)
+        db.session.commit()
+        return redirect('/Admin_dashboard')
+    return render_template('add_venue.html')
+
 @app.route('/edit_venue/<movie>', methods=['GET', 'POST'])
-def edit(movie):
+def edit_venue(movie):
     venue = Venue.query.filter_by(Movie=movie).first()
     if request.method == 'POST':
         venue.Venue = request.form['Venue']
@@ -200,19 +217,25 @@ def edit(movie):
         venue.City = request.form['City']
         venue.Capacity = request.form['Capacity']
         db.session.commit()
-        return redirect('/user_dashboard')
+        return redirect('/Admin_dashboard')
     return render_template('edit.html', venue=venue)
 
-
 @app.route('/delete_venue/<movie>', methods=['GET', 'POST'])
-def delete(movie):
+def delete_venue(movie):
     venue = Venue.query.filter_by(Movie=movie).first()
     if request.method == 'POST':
         db.session.delete(venue)
         db.session.commit()
-        return redirect('/user_dashboard')
+        return redirect('/Admin_dashboard')
     return render_template('delete.html', venue=venue)
 
+@app.route('/rate', methods=['POST'])
+def rate():
+    venue = request.form['venue']
+    rating = request.form['rating']
+    # save the rating to the database
+    # redirect back to the dashboard
+    return redirect('/user_dashboard')
 
 
 if __name__ == '__main__':
