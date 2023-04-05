@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Event Venues</title>
+	<style>
+		table, th, td {
+			border: 1px solid black;
+			border-collapse: collapse;
+			padding: 5px;
+		}
+		th {
+			background-color: gray;
+			color: white;
+		}
+	</style>
+</head>
+<body>
+	<h1>Event Venues</h1>
+	<table>
+		<tr>
+			<th>Movie</th>
+			<th>Venue</th>
+			<th>Location</th>
+			<th>City</th>
+			<th>Capacity</th>
+		</tr>
+		<?php
+		// Connect to the database
+		$db = new SQLite3('/Users/suyashsrivastav/Desktop/Ticket-Show-Application/booking.db');
+
+		// Query the "venue" table
+		$results = $db->query('SELECT * FROM venue');
+
+		// Loop through the results and display them in the table
+		while ($row = $results->fetchArray()) {
+			echo '<tr>';
+			echo '<td>' . $row['Movie'] . '</td>';
+			echo '<td>' . $row['Venue'] . '</td>';
+			echo '<td>' . $row['Location'] . '</td>';
+			echo '<td>' . $row['City'] . '</td>';
+			echo '<td>' . $row['Capacity'] . '</td>';
+			echo '</tr>';
+		}
+
+		// Close the database connection
+		$db->close();
+		?>
+	</table>
+</body>
+</html>

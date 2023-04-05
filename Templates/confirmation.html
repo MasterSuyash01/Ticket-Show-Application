@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Confirmation</title>
+    <!-- Link Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="mt-5">Thank you for booking a ticket!</h1>
+      <p class="lead">Here is your ticket information:</p>
+      <ul class="list-group">
+        <li class="list-group-item">Name: {{ ticket.name }}</li>
+        <li class="list-group-item">Date: {{ ticket.date }}</li>
+        <li class="list-group-item">Time: {{ ticket.time }}</li>
+        <li class="list-group-item">Number of Tickets: {{ ticket.num_tickets }}</li>
+        
+        <li class="list-group-item">Booking Number: {{ ticket.booking_number }}</li>
+      </ul>
+    </div>
+    <!-- Link Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965

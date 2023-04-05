@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">Admin Dashboard</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <!-- add a logout button -->
+            <a href="/admin_login" class="btn btn-outline-danger mx-2">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container">
+      <h1 class="text-center mb-5">Welcome to the Admin Dashboard!</h1>
+
+      <!-- add some spacing between the search and add new venue buttons -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <form method="get" action="/admin_dashboard">
+            <div class="input-group">
+              <input type="text" class="form-control" name="q" placeholder="Search" />
+              <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Search</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6 text-md-right">
+          <a href="/add_venue" class="btn btn-primary">Add New Venue</a>
+        </div>
+      </div>
+
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th>Movie</th>
+            <th>Venue</th>
+            <th>Location</th>
+            <th>City</th>
+            <th>Capacity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for venue in venues %}
+          <tr>
+            <td>{{ venue.Movie }}</td>
+            <td>{{ venue.Venue }}</td>
+            <td>{{ venue.Location }}</td>
+            <td>{{ venue.City }}</td>
+            <td>{{ venue.Capacity }}</td>
+            <td>
+              <a href="/edit_venue/{{ venue.Movie }}" class="btn btn-primary">Edit</a>
+              <a href="/delete_venue/{{ venue.Movie }}" class="btn btn-danger">Remove</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

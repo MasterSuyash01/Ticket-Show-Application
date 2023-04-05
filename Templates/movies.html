@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Movies</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" >Movies</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+          
+        </ul>
+        <a class="nav-link" href="/">Home</a>
+        <form class="form-inline my-2 my-lg-0" method="GET" action="{{ url_for('search') }}">
+          <input class="form-control mr-sm-2" type="text" name="query" placeholder="Search for movies...">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+      </div>
+    </nav>
+    <div class="container">
+      <h1>List of Movies</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Show ID</th>
+            <th>Movie Name</th>
+            <th>Rating</th>
+            <th>Ticket Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for movie in Movies %}
+          <tr>
+            <td>{{ movie.Show_id }}</td>
+            <td>{{ movie.Moviename }}</td>
+            <td>{{ movie.Rating }}</td>
+            <td>{{ movie.Ticket_cost }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
