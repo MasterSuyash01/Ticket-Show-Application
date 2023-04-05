@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 import random
-from werkzeug.security import check_password_hash
 from flask import request
 
 app = Flask(__name__)
@@ -131,17 +130,14 @@ def book_ticket():
     return render_template('book_ticket.html')
 
 
-# Venue Adding 
-
-
 class Venue(db.Model):
-    Movie = db.Column(db.String(50), unique=True,primary_key=True)
+    Movie = db.Column(db.String(50), unique=True, primary_key=True)
     Venue = db.Column(db.String(50))
     Location = db.Column(db.String(50))
     City = db.Column(db.String(50))
     Capacity = db.Column(db.String(50))
 
-@app.route('/Admin_dashboard',methods=['GET','POST'])
+@app.route('/Admin_dashboard', methods=['GET', 'POST'])
 def Admin_dashboard():
     return render_template('Admin_dashboard.html')
 
@@ -153,14 +149,12 @@ def Add():
     City = request.form['City']
     Capacity = request.form['Capacity']
     
-    Venue = venue(Movie=Movie, Venue=Venue, Location=Location, City=City, Capacity=Capacity)
-    db.session.add(Venue)
+    venue = Venue(Movie=Movie, Venue=Venue, Location=Location, City=City, Capacity=Capacity)
+    db.session.add(venue)
     db.session.commit()
     
-    return 'New venue Added successfully'
+    return 'New venue added successfully'
 
-
-#-----------------Movies---------------------------------------
 
 class Movies(db.Model):
     __tablename__ = 'Movies'
@@ -197,6 +191,27 @@ def search():
         movies = Movies.query.all()
     return render_template('movies.html', Movies=movies)
 
+@app.route('/edit_venue/<movie>', methods=['GET', 'POST'])
+def edit(movie):
+    venue = Venue.query.filter_by(Movie=movie).first()
+    if request.method == 'POST':
+        venue.Venue = request.form['Venue']
+        venue.Location = request.form['Location']
+        venue.City = request.form['City']
+        venue.Capacity = request.form['Capacity']
+        db.session.commit()
+        return redirect('/user_dashboard')
+    return render_template('edit.html', venue=venue)
+
+
+@app.route('/delete_venue/<movie>', methods=['GET', 'POST'])
+def delete(movie):
+    venue = Venue.query.filter_by(Movie=movie).first()
+    if request.method == 'POST':
+        db.session.delete(venue)
+        db.session.commit()
+        return redirect('/user_dashboard')
+    return render_template('delete.html', venue=venue)
 
 
 
