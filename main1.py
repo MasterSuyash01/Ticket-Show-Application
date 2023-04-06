@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect,url_for
 from flask_sqlalchemy import SQLAlchemy
 import random
 from flask import request
@@ -125,8 +125,8 @@ def book_ticket():
         db.session.commit()
 
         return render_template('confirmation.html', ticket=ticket)
-
-    return render_template('book_ticket.html')
+    venues = Venue.query.all()
+    return render_template('book_ticket.html',venues=venues)
 
 
 class Venue(db.Model):
@@ -183,10 +183,10 @@ def Admin_dashboard():
     # if there is a search query, filter the venues by the query
     if query:
         venues = Venue.query.filter(
-            Venue.movie.ilike(f'%{query}%') |
-            Venue.venue.ilike(f'%{query}%') |
-            Venue.location.ilike(f'%{query}%') |
-            Venue.city.ilike(f'%{query}%')
+            Venue.Movie.ilike(f'%{query}%') |
+            Venue.Venue.ilike(f'%{query}%') |
+            Venue.Location.ilike(f'%{query}%') |
+            Venue.City.ilike(f'%{query}%')
         ).all()
     else:
         venues = Venue.query.all()
@@ -237,6 +237,24 @@ def rate():
     # redirect back to the dashboard
     return redirect('/user_dashboard')
 
+class Show(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    time = db.Column(db.String(80), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
+
+@app.route('/add_show', methods=['GET', 'POST'])
+def add_show():
+    if request.method == 'POST':
+        name = request.form['name']
+        time = request.form['time']
+        price = request.form['price']
+        new_show = Show(name=name, time=time, price=price)
+        db.session.add(new_show)
+        db.session.commit()
+        return 'Show added successfully!'
+    else:
+        return render_template('add_show.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
