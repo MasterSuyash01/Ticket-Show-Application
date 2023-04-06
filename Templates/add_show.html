@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Add Show</title>
+	<!-- Add Bootstrap CSS link -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<h1 class="my-4">Add Show</h1>
+		<form method="POST" action="/add_show">
+			<div class="form-group">
+				<label for="name">Name:</label>
+				<input type="text" class="form-control" id="name" name="name" required>
+			</div>
+			<div class="form-group">
+				<label for="time">Time:</label>
+				<input type="text" class="form-control" id="time" name="time" required>
+			</div>
+			<div class="form-group">
+				<label for="price">Price:</label>
+				<input type="number" class="form-control" id="price" name="price" required>
+			</div>
+			<button type="submit" class="btn btn-primary">Add Show</button>
+		</form>
+	</div>
+	<!-- Add Bootstrap JS scripts -->
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
+
