@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Bookings</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">My Bookings</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <!-- add a logout button -->
+            <a href="/user_logout" class="btn btn-outline-danger mx-2">Logout</a>
+          </li>
+          <li class="nav-item">
+            <!-- add a link to the user dashboard -->
+            <a href="/user_dashboard" class="btn btn-primary mx-2">User Dashboard</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container">
+      <h1 class="text-center mb-5"><h1>Welcome to My Bookings!</h1>
+      </h1>
+      <div>
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th>Booking Number</th>
+              <th>Venue Name</th>
+              <th>Show Name</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Number of Tickets</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in bookings %}
+            <tr>
+              <td>{{ booking.booking_number }}</td>
+              <td>{{ booking.venuename }}</td>
+              <td>{{ booking.Showname }}</td>
+              <td>{{ booking.date }}</td>
+              <td>{{ booking.time }}</td>
+              <td>{{ booking.num_tickets }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+</body>
+</html>    
