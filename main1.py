@@ -5,7 +5,7 @@ from flask import request
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, current_user, login_required
-from flask_login import LoginManager, UserMixin  
+from flask_login import LoginManager, UserMixin,logout_user 
 import secrets
 
 
@@ -72,8 +72,8 @@ def user_login():
         return redirect(url_for('user_dashboard'))
 
     if request.method == 'POST':
-        username = request.form.get('UserName')
-        password = request.form.get('Password')
+        username = request.form.get('username')
+        password = request.form.get('password')
         user = User.query.filter_by(UserName=username).first()
 
         if user and user.check_password(password):
@@ -90,7 +90,14 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return User.query.get((user_id))
+
+
+
+@app.route('/user_logout', methods=['GET', 'POST'])
+def user_logout():   
+    logout_user()
+    return redirect("user_login")    
 
 #user page
 @app.route('/New_user')
@@ -106,6 +113,7 @@ def register():
     confirm_password = request.form['password']
     
     user = User(UserName=username, Name=name, Email=email, Password=password, Confirm_Password=password)
+    user.set_password(password)
     db.session.add(user)
     db.session.commit()
     
@@ -175,8 +183,8 @@ def book_ticket():
 
 
 class Venue(db.Model):
-    Movie = db.Column(db.String(50), unique=True, primary_key=True)
-    Venue = db.Column(db.String(50))
+    
+    Venue = db.Column(db.String(50),unique=True, primary_key=True)
     Location = db.Column(db.String(50))
     City = db.Column(db.String(50))
     Capacity = db.Column(db.String(50))
