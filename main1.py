@@ -1,11 +1,20 @@
-from flask import Flask, render_template, request, redirect,url_for
+from flask import Flask, render_template, request, redirect,url_for,flash
 from flask_sqlalchemy import SQLAlchemy
 import random
 from flask import request
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_user, current_user, login_required
+from flask_login import LoginManager, UserMixin  
+import secrets
+
+
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/suyashsrivastav/Desktop/Ticket-Show-Application/booking.db'
 db = SQLAlchemy(app)
+
 
 # ---------- Landing Page ------------
 @app.route('/')
@@ -13,10 +22,10 @@ def landingpage():
     return render_template('Landingpage.html')
 
 # ---------- User Login Page ------------
-@app.route('/user_login')
+"""@app.route('/user_login')
 def user_login():
     return render_template('user_login.html')
-
+"""
 # ---------- User Dashboard Page ------------
 
 """@app.route('/user_dashboard')
@@ -39,13 +48,49 @@ def login():
         return render_template('admin_login.html')
 
 
-class User(db.Model):
+app.secret_key = secrets.token_hex(16)
+class User(UserMixin,db.Model):
     __tablename__ = 'User'
     UserName = db.Column(db.String(80), primary_key=True, nullable=False)
     Name = db.Column(db.String(80), nullable=False)
     Email = db.Column(db.String(120), unique=True, nullable=False)
     Password = db.Column(db.String(80), nullable=False)
     Confirm_Password = db.Column(db.String(80), nullable=False)
+
+    def set_password(self, password):
+        self.Confirm_Password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.Confirm_Password, password)
+
+    def get_id(self):
+        return str(self.UserName)
+
+@app.route('/user_login', methods=['GET', 'POST'])
+def user_login():
+    if current_user.is_authenticated:
+        return redirect(url_for('user_dashboard'))
+
+    if request.method == 'POST':
+        username = request.form.get('UserName')
+        password = request.form.get('Password')
+        user = User.query.filter_by(UserName=username).first()
+
+        if user and user.check_password(password):
+            login_user(user)
+            return redirect(url_for('user_dashboard'))
+        else:
+            flash('Invalid username or password')
+
+    return render_template('user_login.html')
+
+login_manager = LoginManager()
+login_manager.login_view = 'user_login'
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 #user page
 @app.route('/New_user')
@@ -179,7 +224,7 @@ def search():
 def Admin_dashboard():
     # get the search query from the URL parameter 'q'
     query = request.args.get('q')
-
+    shows = Show.query.all()
     # if there is a search query, filter the venues by the query
     if query:
         venues = Venue.query.filter(
@@ -188,10 +233,16 @@ def Admin_dashboard():
             Venue.Location.ilike(f'%{query}%') |
             Venue.City.ilike(f'%{query}%')
         ).all()
+    
+    if query:
+        shows=Show.query.filter(
+            Show.name.ilike(f'%{query}%') 
+        ).all()    
+    
     else:
         venues = Venue.query.all()
-
-    return render_template('Admin_dashboard.html', venues=venues)
+        shows=Show.query.all()
+    return render_template('Admin_dashboard.html', venues=venues,shows=shows)
 
 
 @app.route('/add_venue', methods=['GET', 'POST'])
@@ -229,14 +280,14 @@ def delete_venue(movie):
         return redirect('/Admin_dashboard')
     return render_template('delete.html', venue=venue)
 
-@app.route('/rate', methods=['POST'])
+"""@app.route('/rate', methods=['POST'])
 def rate():
     venue = request.form['venue']
     rating = request.form['rating']
     # save the rating to the database
     # redirect back to the dashboard
     return redirect('/user_dashboard')
-
+"""
 class Show(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
@@ -255,6 +306,40 @@ def add_show():
         return 'Show added successfully!'
     else:
         return render_template('add_show.html')
+
+class Rating(db.Model):
+    ratings_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(50))
+    show_name = db.Column(db.String(50))
+    venue_name=db.Column((db.String(50)))
+    ratings=db.Column(db.Integer)
+
+
+
+@app.route('/rate')
+def rate_page():
+    # Get the venue name from the query parameters
+    venue = request.args.get('venue')
+    
+    # Render the rating page with the venue name as a parameter
+    return render_template('rating.html', venue=venue)
+
+
+
+@app.route('/rate', methods=['POST'])
+def rate():
+    # Get the venue name and rating from the POST request
+    venue = request.form['venue']
+    rating = request.form['rating']
+    
+    # Create a new rating object and save it to the database
+    new_rating = Rating(user_id=current_user.id, venue_name=venue, ratings=rating)
+    db.session.add(new_rating)
+    db.session.commit()
+    
+    # Redirect back to the user dashboard page
+    return redirect('/user_dashboard')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
