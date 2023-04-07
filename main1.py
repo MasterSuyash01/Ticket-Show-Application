@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect,url_for,flash
+from flask import Flask, render_template, request, redirect,url_for,flash,session
 from flask_sqlalchemy import SQLAlchemy
 import random
 from flask import request
@@ -21,16 +21,7 @@ db = SQLAlchemy(app)
 def landingpage():
     return render_template('Landingpage.html')
 
-# ---------- User Login Page ------------
-"""@app.route('/user_login')
-def user_login():
-    return render_template('user_login.html')
-"""
-# ---------- User Dashboard Page ------------
 
-"""@app.route('/user_dashboard')
-def user_dashboard():
-    return render_template("user_dashboard.html")"""
 
 
 # ---------- Admin Login Page ------------
@@ -217,14 +208,15 @@ def movies():
 def user_dashboard():
     # get the search query from the URL parameter 'q'
     query = request.args.get('q')
-
+    current_user = User.query.filter_by(UserName=session.get('user_id')).first()
     # if there is a search query, filter the venues by the query
     if query:
         venues = Venue.query.filter( Venue.Venue.contains(query) | Venue.Location.contains(query) | Venue.City.contains(query)).all()
     else:
         venues = Venue.query.all()
+    shows = Show.query.all()
 
-    return render_template('user_dashboard.html', venues=venues)
+    return render_template('user_dashboard.html', venues=venues,current_user=current_user,shows=shows)
 
 @app.route('/search')
 def search():
@@ -245,7 +237,7 @@ def Admin_dashboard():
     # if there is a search query, filter the venues by the query
     if query:
         venues = Venue.query.filter(
-            Venue.Movie.ilike(f'%{query}%') |
+            
             Venue.Venue.ilike(f'%{query}%') |
             Venue.Location.ilike(f'%{query}%') |
             Venue.City.ilike(f'%{query}%')
@@ -297,14 +289,7 @@ def delete_venue(movie):
         return redirect('/Admin_dashboard')
     return render_template('delete.html', venue=venue)
 
-"""@app.route('/rate', methods=['POST'])
-def rate():
-    venue = request.form['venue']
-    rating = request.form['rating']
-    # save the rating to the database
-    # redirect back to the dashboard
-    return redirect('/user_dashboard')
-"""
+
 class Show(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
@@ -325,37 +310,27 @@ def add_show():
         return render_template('add_show.html')
 
 class Rating(db.Model):
-    ratings_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String(50))
-    show_name = db.Column(db.String(50))
-    venue_name=db.Column((db.String(50)))
-    ratings=db.Column(db.Integer)
+    user_id = db.Column(db.Integer, primary_key=True)
+    show_name = db.Column(db.String(80), nullable=False)
+    venue_name = db.Column(db.String(80), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
 
-
-
-@app.route('/rate')
-def rate_page():
-    # Get the venue name from the query parameters
-    venue = request.args.get('venue')
+@app.route('/rate_venue', methods=['POST'])
+def rate_venue():
+    venue_name = request.form.get('venue_name')
+    rating = request.form.get('rating')
     
-    # Render the rating page with the venue name as a parameter
-    return render_template('rating.html', venue=venue)
-
-
-
-@app.route('/rate', methods=['POST'])
-def rate():
-    # Get the venue name and rating from the POST request
-    venue = request.form['venue']
-    rating = request.form['rating']
+    # Retrieve the current user
+    current_user = User.query.filter_by(id=session.get('user_id')).first()
     
-    # Create a new rating object and save it to the database
-    new_rating = Rating(user_id=current_user.id, venue_name=venue, ratings=rating)
-    db.session.add(new_rating)
+    # Create a new rating object and add it to the database
+    rating = Rating(user_id=current_user.id, venue_name=venue_name, rating=rating)
+    db.session.add(rating)
     db.session.commit()
     
-    # Redirect back to the user dashboard page
-    return redirect('/user_dashboard')
+    # Redirect the user back to the dashboard
+    return redirect(url_for('user_dashboard'))
+
 
 @app.route('/my_bookings')
 @login_required
