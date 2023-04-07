@@ -1,13 +1,14 @@
 from flask import Flask, render_template, request, redirect,url_for,flash,session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import ForeignKey
 import random
 from flask import request
-from flask_login import UserMixin
+from flask_login import UserMixin,current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, current_user, login_required
 from flask_login import LoginManager, UserMixin,logout_user 
 import secrets
-
+import matplotlib.pyplot as plt
 
 
 
@@ -133,7 +134,7 @@ class Ticket(db.Model):
     date = db.Column(db.String(10), nullable=False)
     time = db.Column(db.String(10), nullable=False)
     venuename=db.Column(db.String(80),nullable=False)
-    Showname=db.Column(db.String(80),nullable=False)
+    showname=db.Column(db.String(80),nullable=False)
     num_tickets = db.Column(db.Integer, nullable=False)
     booking_number = db.Column(db.String(10), unique=True, nullable=False)
 
@@ -162,15 +163,19 @@ def book_ticket():
         name = request.form['name']
         date = request.form['date']
         time = request.form['time']
-        venuename = request.form['venue']
-        showname = request.form['Show']
+        show_id = request.form['venue']
+        
         num_tickets = request.form['num_tickets']
 
-        # Calculate ticket price and total price based on num_tickets
-        ticket_price = 150 # Replace with your actual ticket price calculation
-        total_price = num_tickets * ticket_price
+        show=Show.query.get(show_id)
+        num_tickets=int(num_tickets)
+        if int(show.venue.Capacity)<num_tickets:
+            return "HouseFull"
+        show.venue.Capacity=str(int(show.venue.Capacity)-num_tickets)
 
-        ticket = Ticket(name=name, date=date, time=time,venuename=venuename,showname=showname, num_tickets=num_tickets)
+        
+
+        ticket = Ticket(name=name, date=date, time=time,venuename=show.venue.Venue,showname=show.name, num_tickets=num_tickets)
         db.session.add(ticket)
         db.session.commit()
 
@@ -268,9 +273,9 @@ def add_venue():
         return redirect('/Admin_dashboard')
     return render_template('add_venue.html')
 
-@app.route('/edit_venue/<movie>', methods=['GET', 'POST'])
-def edit_venue(movie):
-    venue = Venue.query.filter_by(Movie=movie).first()
+@app.route('/edit_venue/<Venue>', methods=['GET', 'POST'])
+def edit_venue(venue):
+    venue = Venue.query.filter_by(Venue=venue).first()
     if request.method == 'POST':
         venue.Venue = request.form['Venue']
         venue.Location = request.form['Location']
@@ -280,7 +285,7 @@ def edit_venue(movie):
         return redirect('/Admin_dashboard')
     return render_template('edit.html', venue=venue)
 
-@app.route('/delete_venue/<movie>', methods=['GET', 'POST'])
+@app.route('/delete_venue/<venue>', methods=['GET', 'POST'])
 def delete_venue(movie):
     venue = Venue.query.filter_by(Movie=movie).first()
     if request.method == 'POST':
@@ -292,9 +297,11 @@ def delete_venue(movie):
 
 class Show(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    venue_id=db.Column(db.String,ForeignKey(Venue.Venue))
     name = db.Column(db.String(80), nullable=False)
     time = db.Column(db.String(80), nullable=False)
     price = db.Column(db.Integer, nullable=False)
+    venue=db.relationship(Venue,backref="Shows")
 
 @app.route('/add_show', methods=['GET', 'POST'])
 def add_show():
@@ -307,24 +314,29 @@ def add_show():
         db.session.commit()
         return 'Show added successfully!'
     else:
-        return render_template('add_show.html')
+        venues=Venue.query.all()
+        return render_template('add_show.html',venues=venues)
 
 class Rating(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
+    __tablename__="Ratings"
+    id=db.Column(db.Integer,primary_key=True)
+    user_id = db.Column(db.String(80))
     show_name = db.Column(db.String(80), nullable=False)
     venue_name = db.Column(db.String(80), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
+    ratings = db.Column(db.Integer, nullable=False)
 
 @app.route('/rate_venue', methods=['POST'])
 def rate_venue():
     venue_name = request.form.get('venue_name')
+    show_name = request.form.get('show_name')
     rating = request.form.get('rating')
     
     # Retrieve the current user
-    current_user = User.query.filter_by(id=session.get('user_id')).first()
+
+    """currentuser = User.query.filter_by(UserName=current_user.UserName).first()"""
     
     # Create a new rating object and add it to the database
-    rating = Rating(user_id=current_user.id, venue_name=venue_name, rating=rating)
+    rating = Rating(user_id=current_user.UserName, venue_name=venue_name, ratings=rating,show_name=show_name)
     db.session.add(rating)
     db.session.commit()
     
@@ -337,6 +349,41 @@ def rate_venue():
 def my_bookings():
     bookings = Ticket.query.filter_by(name=current_user.Name).all()
     return render_template('my_bookings.html', bookings=bookings)
+
+
+@app.route('/edit_show/<show_name>', methods=['GET', 'POST'])
+def edit_show(show_name):
+    show = Show.query.filter_by(name=show_name).first()
+    if request.method == 'POST':
+        show.name = request.form['Name']
+        show.time = request.form['Time']
+        show.price = request.form['Price']
+        db.session.commit()
+        return redirect('/Admin_dashboard')
+    return render_template('edit_show.html', show=show)
+
+
+@app.route('/summary')
+def generate_summary():
+    # Query the Ticket table to retrieve the data
+    shows = Ticket.query.all()
+    
+    # Create lists to store the show names and number of tickets sold
+    show_names = []
+    num_tickets_sold = []
+    for show in shows:
+        show_names.append(show.showname)
+        num_tickets_sold.append(show.num_tickets)
+    
+    # Create the bar graph using matplotlib
+    plt.plot(show_names, num_tickets_sold)
+    plt.xlabel('Show')
+    plt.ylabel('Number of Tickets Sold')
+    plt.title('Ticket Sales Summary')
+    plt.savefig("graph.png")
+
+    return render_template('summary.html')
+
 
 
 
