@@ -141,13 +141,17 @@ class Ticket(db.Model):
     name = db.Column(db.String(80), nullable=False)
     date = db.Column(db.String(10), nullable=False)
     time = db.Column(db.String(10), nullable=False)
+    venuename=db.Column(db.String(80),nullable=False)
+    Showname=db.Column(db.String(80),nullable=False)
     num_tickets = db.Column(db.Integer, nullable=False)
     booking_number = db.Column(db.String(10), unique=True, nullable=False)
 
-    def __init__(self, name, date, time, num_tickets):
+    def __init__(self, name, date, time,venuename,showname, num_tickets):
         self.name = name
         self.date = date
         self.time = time
+        self.venuename=venuename
+        self.showname=showname
         self.num_tickets = num_tickets
         self.booking_number = self.generate_booking_number()
 
@@ -167,19 +171,24 @@ def book_ticket():
         name = request.form['name']
         date = request.form['date']
         time = request.form['time']
+        venuename = request.form['venue']
+        showname = request.form['Show']
         num_tickets = request.form['num_tickets']
 
         # Calculate ticket price and total price based on num_tickets
         ticket_price = 150 # Replace with your actual ticket price calculation
         total_price = num_tickets * ticket_price
 
-        ticket = Ticket(name=name, date=date, time=time, num_tickets=num_tickets)
+        ticket = Ticket(name=name, date=date, time=time,venuename=venuename,showname=showname, num_tickets=num_tickets)
         db.session.add(ticket)
         db.session.commit()
 
         return render_template('confirmation.html', ticket=ticket)
+
     venues = Venue.query.all()
-    return render_template('book_ticket.html',venues=venues)
+    shows = Show.query.all()
+    return render_template('book_ticket.html',venues=venues,shows=shows)
+
 
 
 class Venue(db.Model):
@@ -211,7 +220,7 @@ def user_dashboard():
 
     # if there is a search query, filter the venues by the query
     if query:
-        venues = Venue.query.filter(Venue.Movie.contains(query) | Venue.Venue.contains(query) | Venue.Location.contains(query) | Venue.City.contains(query)).all()
+        venues = Venue.query.filter( Venue.Venue.contains(query) | Venue.Location.contains(query) | Venue.City.contains(query)).all()
     else:
         venues = Venue.query.all()
 
@@ -348,15 +357,13 @@ def rate():
     # Redirect back to the user dashboard page
     return redirect('/user_dashboard')
 
+@app.route('/my_bookings')
+@login_required
+def my_bookings():
+    bookings = Ticket.query.filter_by(name=current_user.Name).all()
+    return render_template('my_bookings.html', bookings=bookings)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
-
-
-
-
