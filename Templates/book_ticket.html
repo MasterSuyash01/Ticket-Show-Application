@@ -10,7 +10,7 @@
       <form action="/book_ticket" method="post">
         <div class="form-group">
           <label for="name">Name:</label>
-          <input type="text" class="form-control" id="name" name="name" required>
+          <input type="text" value="{{current_user.Name}}" class="form-control" id="name" name="name" required>
         </div>
 
         <div class="form-group">
@@ -27,11 +27,14 @@
           <label for="venue">Venue:</label>
           <select class="form-control" id="venue" name="venue">
             {% for venue in venues %}
-            <option value="{{ venue[0] }}">{{ venue[0] }} - {{ venue[1] }}</option>
+            {% for show in venue.Shows %}
+            <option value="{{ show.id }}">{{ venue.Venue }} - {{ venue.Location }} - {{show.name}}-{{venue.Capacity}}</option>
+            {% endfor %}
             {% endfor %}
           </select>
         </div>
 
+        
         <div class="form-group">
           <label for="num_tickets">Number of Tickets:</label>
           <input type="number" class="form-control" id="num_tickets" name="num_tickets" min="1" max="10" required>
