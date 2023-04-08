@@ -25,6 +25,9 @@
             <!-- add a logout button -->
             <a href="/admin_login" class="btn btn-outline-danger mx-2">Logout</a>
           </li>
+          <li class="nav-item">
+            <a href="/summary" class="btn btn-outline-primary mx-2">Summary</a>
+        </li>
         </ul>
       </div>
     </nav>
@@ -34,7 +37,7 @@
       <!-- add some spacing between the search and add new venue buttons -->
       <div class="row mb-3">
         <div class="col-md-6">
-          <form method="get" action="/admin_dashboard">
+          <form method="get" action="/Admin_dashboard">
             <div class="input-group">
               <input type="text" class="form-control" name="q" placeholder="Search" />
               <div class="input-group-append">
@@ -45,13 +48,14 @@
         </div>
         <div class="col-md-6 text-md-right">
           <a href="/add_venue" class="btn btn-primary">Add New Venue</a>
+          <a href="/add_show" class="btn btn-primary">Add Shows</a>
         </div>
       </div>
-
+      
       <table class="table">
         <thead class="thead-light">
           <tr>
-            <th>Movie</th>
+            
             <th>Venue</th>
             <th>Location</th>
             <th>City</th>
@@ -62,19 +66,44 @@
         <tbody>
           {% for venue in venues %}
           <tr>
-            <td>{{ venue.Movie }}</td>
+            
             <td>{{ venue.Venue }}</td>
             <td>{{ venue.Location }}</td>
             <td>{{ venue.City }}</td>
             <td>{{ venue.Capacity }}</td>
             <td>
-              <a href="/edit_venue/{{ venue.Movie }}" class="btn btn-primary">Edit</a>
-              <a href="/delete_venue/{{ venue.Movie }}" class="btn btn-danger">Remove</a>
+              <a href="/edit_venue/{{ venue.Venue }}" class="btn btn-primary">Edit</a>
+              <a href="/delete_venue/{{ venue.Venue }}" class="btn btn-danger">Remove</a>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+      <!-- update the table in the HTML code -->
+<table class="table">
+  <thead class="thead-light">
+    <tr>
+      <th>Name</th>
+      <th>Time</th>
+      <th>Price</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for show in shows %}
+    <tr>
+      <td>{{ show.name }}</td>
+      <td>{{ show.time }}</td>
+      <td>{{ show.price }}</td>
+      <td>
+        <a href="/edit_show/{{ show.id }}" class="btn btn-primary">Edit</a>
+        <a href="/delete_show/{{ show.id }}" class="btn btn-danger">Remove</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
     </div>
   </body>
 </html>
