@@ -262,18 +262,18 @@ def Admin_dashboard():
 @app.route('/add_venue', methods=['GET', 'POST'])
 def add_venue():
     if request.method == 'POST':
-        movie = request.form['Movie']
+        
         venue = request.form['Venue']
         location = request.form['Location']
         city = request.form['City']
         capacity = request.form['Capacity']
-        new_venue = Venue(Movie=movie, Venue=venue, Location=location, City=city, Capacity=capacity)
+        new_venue = Venue( Venue=venue, Location=location, City=city, Capacity=capacity)
         db.session.add(new_venue)
         db.session.commit()
         return redirect('/Admin_dashboard')
     return render_template('add_venue.html')
 
-@app.route('/edit_venue/<Venue>', methods=['GET', 'POST'])
+@app.route('/edit_venue/<venue>', methods=['GET', 'POST'])
 def edit_venue(venue):
     venue = Venue.query.filter_by(Venue=venue).first()
     if request.method == 'POST':
@@ -285,14 +285,17 @@ def edit_venue(venue):
         return redirect('/Admin_dashboard')
     return render_template('edit.html', venue=venue)
 
+
+
 @app.route('/delete_venue/<venue>', methods=['GET', 'POST'])
-def delete_venue(movie):
-    venue = Venue.query.filter_by(Movie=movie).first()
+def delete_venue(venue):
+    venue = Venue.query.filter_by(Venue=venue).first()
     if request.method == 'POST':
         db.session.delete(venue)
         db.session.commit()
         return redirect('/Admin_dashboard')
     return render_template('delete.html', venue=venue)
+
 
 
 class Show(db.Model):
@@ -351,17 +354,25 @@ def my_bookings():
     return render_template('my_bookings.html', bookings=bookings)
 
 
-@app.route('/edit_show/<show_name>', methods=['GET', 'POST'])
-def edit_show(show_name):
-    show = Show.query.filter_by(name=show_name).first()
+@app.route('/edit_show/<int:show_id>', methods=['GET', 'POST'])
+def edit_show(show_id):
+    show = Show.query.get(show_id)
     if request.method == 'POST':
-        show.name = request.form['Name']
-        show.time = request.form['Time']
-        show.price = request.form['Price']
+        show.name = request.form['name']
+        show.time = request.form['time']
+        show.price = request.form['price']
         db.session.commit()
-        return redirect('/Admin_dashboard')
+        return redirect(url_for('Admin_dashboard'))
     return render_template('edit_show.html', show=show)
 
+@app.route('/delete_show/<int:id>', methods=['GET', 'POST'])
+def delete_show(id):
+    show = Show.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(show)
+        db.session.commit()
+        return redirect(url_for('Admin_dashboard'))
+    return render_template('delete_show.html', Show=show)
 
 @app.route('/summary')
 def generate_summary():
