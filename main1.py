@@ -9,7 +9,11 @@ from flask_login import login_user, current_user, login_required
 from flask_login import LoginManager, UserMixin,logout_user 
 import secrets
 import matplotlib.pyplot as plt
-
+import io
+import base64
+import matplotlib
+matplotlib.use('Agg') # Agg backend for non-interactive mode
+import matplotlib.pyplot as plt
 
 
 app = Flask(__name__)
@@ -309,10 +313,11 @@ class Show(db.Model):
 @app.route('/add_show', methods=['GET', 'POST'])
 def add_show():
     if request.method == 'POST':
+        venue=request.form['venue']
         name = request.form['name']
         time = request.form['time']
         price = request.form['price']
-        new_show = Show(name=name, time=time, price=price)
+        new_show = Show(name=name, time=time, price=price,venue_id=venue)
         db.session.add(new_show)
         db.session.commit()
         return 'Show added successfully!'
@@ -386,17 +391,54 @@ def generate_summary():
         show_names.append(show.showname)
         num_tickets_sold.append(show.num_tickets)
     
-    # Create the bar graph using matplotlib
-    plt.plot(show_names, num_tickets_sold)
-    plt.xlabel('Show')
-    plt.ylabel('Number of Tickets Sold')
-    plt.title('Ticket Sales Summary')
-    plt.savefig("graph.png")
+    # Create the bar graph for ticket sales using matplotlib
+    fig1, ax1 = plt.subplots()
+    ax1.bar(show_names, num_tickets_sold)
+    ax1.set_xlabel('Show')
+    ax1.set_ylabel('Number of Tickets Sold')
+    ax1.set_title('Ticket Sales Summary')
 
-    return render_template('summary.html')
+    # Query the Rating table to retrieve the data
+    ratings = Rating.query.all()
 
+    # Create lists to store the show names and ratings data
+    show_ratings = {}
+    for rating in ratings:
+        show_name = rating.show_name
+        if show_name in show_ratings:
+            show_ratings[show_name].append(rating.ratings)
+        else:
+            show_ratings[show_name] = [rating.ratings]
 
+    # Create the bar graph for show ratings using matplotlib
+    fig2, ax2 = plt.subplots()
+    for show_name in show_ratings:
+        ratings_data = show_ratings[show_name]
+        num_ratings = len(ratings_data)
+        mean_rating = sum(ratings_data) / num_ratings
+        ax2.bar(show_name, mean_rating)
+    ax2.set_xlabel('Show')
+    ax2.set_ylabel('Mean Rating')
+    ax2.set_title('Show Ratings Summary')
 
+    # Convert the Matplotlib figures to PNG images in memory
+    buf1 = io.BytesIO()
+    fig1.savefig(buf1, format='png')
+    buf1.seek(0)
+
+    buf2 = io.BytesIO()
+    fig2.savefig(buf2, format='png')
+    buf2.seek(0)
+
+    # Encode the PNG images as base64 strings
+    image_base64_1 = base64.b64encode(buf1.read()).decode('utf-8')
+    image_base64_2 = base64.b64encode(buf2.read()).decode('utf-8')
+
+    # Close the Matplotlib figures to free up memory
+    plt.close(fig1)
+    plt.close(fig2)
+
+    return render_template('summary.html', image_base64_1=image_base64_1, image_base64_2=image_base64_2)
 
 if __name__ == '__main__':
     app.run(debug=True)
