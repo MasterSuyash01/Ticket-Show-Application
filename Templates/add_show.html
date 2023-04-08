@@ -21,6 +21,11 @@
 				<label for="price">Price:</label>
 				<input type="number" class="form-control" id="price" name="price" required>
 			</div>
+			<select name="venue" class="form-select">
+				{% for venue in venues %}
+				<option value="{{ venue.Venue }}">{{ venue.Venue }}</option>
+				{% endfor %}
+			</select>
 			<button type="submit" class="btn btn-primary">Add Show</button>
 		</form>
 	</div>
@@ -30,4 +35,3 @@
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
-
