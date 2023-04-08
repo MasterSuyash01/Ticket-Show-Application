@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Admin Dashboard - Summary</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">Admin Dashboard</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <!-- add a logout button -->
+            <a href="/admin_login" class="btn btn-outline-danger mx-2">Logout</a>
+          </li>
+          
+        </ul>
+      </div>
+    </nav>
+    <div class="container">
+      <h1 class="text-center mb-5">Ticket Sales Summary</h1>
+
+      <!-- add a back button -->
+      <div class="text-center">
+        <a href="/Admin_dashboard" class="btn btn-primary mb-3">Back to Dashboard</a>
+      </div>
+
+      <!-- create a div for the plot -->
+      <div id="plot">
+        <img src="data:image/png;base64,{{ image_base64_1 }}" alt="">
+        <img src="data:image/png;base64,{{ image_base64_2 }}" alt="">
+      </div>
+      
+
+    </div>
+
+    <!-- include the required scripts for Matplotlib and Pandas -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-1.54.6.min.js"></script>
