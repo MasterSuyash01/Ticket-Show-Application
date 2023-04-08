@@ -34,8 +34,17 @@
         <div class="card">
           <div class="card-header">User Login</div>
           <div class="card-body">
-            <form action="user_dashboard" method="GET">
+            <form action="user_login" method="POST">
               <div class="form-group">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+                 </ul>
+                {% endif %}
+                {% endwith %}
                 <label for="username">Username:</label>
                 <input type="text" class="form-control" id="username" name="username" required>
               </div>
