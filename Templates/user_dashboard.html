@@ -22,8 +22,12 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
+            <!-- add a link to the bookings page -->
+            <a href="/my_bookings" class="btn btn-outline-primary mx-2">My Bookings</a>
+          </li>
+          <li class="nav-item">
             <!-- add a logout button -->
-            <a href="/user_login" class="btn btn-outline-danger mx-2">Logout</a>
+            <a href="/user_logout" class="btn btn-outline-danger mx-2">Logout</a>
           </li>
           <li class="nav-item">
             <!-- add a link to the book ticket page -->
@@ -33,7 +37,7 @@
       </div>
     </nav>
     <div class="container">
-      <h1 class="text-center mb-5"><h1>Welcome,to the User Dashboard!</h1>
+      <h1 class="text-center mb-5"><h1>Welcome to {{current_user.Name}} Dashboard!</h1>
       </h1>
 
       <!-- add a search bar -->
@@ -47,42 +51,70 @@
         <table class="table">
           <thead class="thead-light">
             <tr>
-              <th>Movie</th>
+              
               <th>Venue</th>
               <th>Location</th>
               <th>City</th>
               <th>Capacity</th>
               <th>Ratings</th>
-              <th>Action</th>
+              <th>Show</th>
+              <th>Time</th>
           </tr>
           </thead>
           <tbody>
             {% for venue in venues %}
+            {% for show in venue.Shows%}
             <tr>
-              <td>{{ venue.Movie }}</td>
+              
               <td>{{ venue.Venue }}</td>
               <td>{{ venue.Location }}</td>
               <td>{{ venue.City }}</td>
               <td>{{ venue.Capacity }}</td>
+              <td>{{show.name}}</td>
+              <td>{{show.time}}</td>
+              
               <td>
-                <form method="POST" action="/rate">
-                  <input type="hidden" name="venue" value="{{ venue.Venue }}">
-                  <select name="rating" class="form-control rating-input">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                  </select>
+                <form method="post" action="{{ url_for('rate_venue') }}">
+                    <input type="hidden" name="show_name" value="{{show.name}}">
+                    <input type="hidden" name="venue_name" value="{{ venue.Venue }}">
+                    <div class="form-group">
+                        <select name="rating" class="form-control">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Rate</button>
                 </form>
-              </td>
-              <td>
-                <button class="btn btn-primary rate-btn">Rate</button>
-              </td>
+            </td>
+              
             </tr>
+            {% endfor %}
             {% endfor %}
           </tbody>
         </table>
+        <!-- add a table for shows -->
+<!--<table class="table">
+  <thead class="thead-light">
+    <tr>
+      <th>Show Name</th>
+      <th>Time</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for show in shows %}
+      <tr>
+        <td>{{ show.name }}</td>
+        <td>{{ show.time }}</td>
+        <td>{{ show.price }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>-->
+
       </div>
     </div>
   </body>
