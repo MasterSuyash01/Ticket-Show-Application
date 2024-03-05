@@ -207,10 +207,7 @@ class Movies(db.Model):
     Rating = db.Column(db.String(120), nullable=False)
     Ticket_cost = db.Column(db.Integer, nullable=False)
 
-@app.route('/movies')
-def movies():
-    movies = Movies.query.all()
-    return render_template('movies.html', Movies=movies)
+
 
 
 @app.route('/user_dashboard')
