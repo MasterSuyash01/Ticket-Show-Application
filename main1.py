@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/suyashsrivastav/Desktop/Ticket-Show-Application/booking.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////workspaces/Ticket-Show-Application/booking.db'
 db = SQLAlchemy(app)
 
 
