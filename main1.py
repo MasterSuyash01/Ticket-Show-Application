@@ -17,7 +17,8 @@ import matplotlib.pyplot as plt
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////workspaces/Ticket-Show-Application/booking.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///booking.db'
+
 db = SQLAlchemy(app)
 
 
@@ -436,6 +437,9 @@ def generate_summary():
     plt.close(fig2)
 
     return render_template('summary.html', image_base64_1=image_base64_1, image_base64_2=image_base64_2)
+
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)
